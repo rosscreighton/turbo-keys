@@ -2,25 +2,33 @@
   const navigable_selectors = ['a', 'button', 'input'];
   const triggerKey = 'Alt';
   const resetKey = 'Escape';
-  const hintClassName = 'turbo-keys_hint';
+  const hintClassName = 'turbo-keys__hint';
+  const maxPermutations = 676;
   let hintInput = [];
   let active = false;
   let usedHints = [];
+  let hintPermuations = 0;
 
+  function getHintElements() {
+    return document.querySelectorAll('.' + hintClassName);
+  }
 
-  function reset() {
-    const hints = document.querySelectorAll('.' + hintClassName);
+  function removeHints() {
+    const hints = getHintElements();
 
     hints.forEach(node => {
       const parent = node.parentNode;
       parent.removeChild(node);
     })
+  }
 
+  function reset() {
+    removeHints();
     usedHints = [];
     active = false;
   }
 
-  function generateHintText() {
+  function generateRandomHintText() {
     const possibleChars = 'abcdefghijklmnopqrstuvwxyz';
     const hintChars = [];
 
@@ -29,19 +37,28 @@
       hintChars.push(char);
     }
 
-    const hint = hintChars.join('');
+    hintPermuations++
+
+    return hintChars.join('');
+  }
+
+  function generateUniqueHintText() {
+    const hint = generateRandomHintText();
 
     if (usedHints.includes(hint)) {
-      return generateHintText();
+      if (hintPermuations > maxPermutations) {
+        return false;
+      } else {
+        return generateUniqueHintText();
+      }
     } else {
       usedHints.push(hint);
       return hint;
     }
   }
 
-  function appendHint(node) {
-    const hintText = generateHintText();
-    if (!hintText) return;
+  function createHintNode() {
+    const hintText = generateUniqueHintText() || '';
 
     const hintNode = document.createElement('span');
     hintNode.className = hintClassName;
@@ -52,7 +69,22 @@
     hintNode.style.color = 'black';
     hintNode.innerText = hintText.toUpperCase();
 
+    return hintNode;
+  }
+
+  function appendHint(node) {
+    const hintNode = createHintNode();
     node.appendChild(hintNode);
+  }
+
+  function isVisibleNode(node) {
+    const bodyPosition = document.body.getBoundingClientRect();
+    const nodePosition = node.getBoundingClientRect();
+
+    return (
+      nodePosition.top > bodyPosition.top &&
+      nodePosition.bottom < bodyPosition.bottom
+    );
   }
 
   function handleTriggerKey() {
@@ -61,7 +93,9 @@
     } else {
       active = true;
       const targetNodes = document.querySelectorAll(navigable_selectors);
-      targetNodes.forEach(node => {
+      const visibleTargetNodes = Array.prototype.filter.call(targetNodes, node => isVisibleNode(node))
+
+      visibleTargetNodes.forEach(node => {
         appendHint(node)
       })
     }
@@ -69,7 +103,7 @@
 
   function findByHintText() {
     const hintText = hintInput.join('');
-    const hints = document.querySelectorAll('.' + hintClassName);
+    const hints = getHintElements();
 
     for (let i = 0; i < hints.length; i++) {
       if (hints[i].innerText.toLowerCase() === hintText) {
