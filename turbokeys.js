@@ -1,5 +1,5 @@
 (function() {
-  const navigable_selectors = ['a'];
+  const navigable_selectors = ['a', 'button', 'input'];
   const triggerKey = 'Alt';
   const resetKey = 'Escape';
   const hintClassName = 'turbo-keys_hint';
@@ -45,10 +45,13 @@
 
     const hintNode = document.createElement('span');
     hintNode.className = hintClassName;
+    hintNode.style.position = 'relative';
+    hintNode.style.padding = '1px';
     hintNode.style.backgroundColor = 'yellow';
     hintNode.style.border = '1px solid orange';
     hintNode.style.color = 'black';
     hintNode.innerText = hintText.toUpperCase();
+
     node.appendChild(hintNode);
   }
 
