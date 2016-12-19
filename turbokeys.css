@@ -1,0 +1,14 @@
+[data-turbokeyshint]:before {
+  content: attr(data-turbokeyshint);
+  position: absolute;
+  position: relative;
+  padding: 1px;
+  background-color: yellow;
+  border: 1px solid orange;
+  color: black;
+  text-transform: uppercase;
+}
+
+[data-turbokeyshint="hidden"]:before {
+  display: none;
+}

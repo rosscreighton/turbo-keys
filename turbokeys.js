@@ -2,7 +2,6 @@
   const navigable_selectors = ['a', 'button', 'input'];
   const triggerKey = 'Alt';
   const resetKey = 'Escape';
-  const hintClassName = 'turbo-keys__hint';
   const maxPermutations = 676;
   let hintInput = [];
   let active = false;
@@ -10,15 +9,14 @@
   let hintPermuations = 0;
 
   function getHintElements() {
-    return document.querySelectorAll('.' + hintClassName);
+    return document.querySelectorAll('[data-turbokeyshint]');
   }
 
   function removeHints() {
     const hints = getHintElements();
 
     hints.forEach(node => {
-      const parent = node.parentNode;
-      parent.removeChild(node);
+      node.dataset.turbokeyshint = 'hidden';
     })
   }
 
@@ -57,24 +55,8 @@
     }
   }
 
-  function createHintNode() {
-    const hintText = generateUniqueHintText() || '';
-
-    const hintNode = document.createElement('span');
-    hintNode.className = hintClassName;
-    hintNode.style.position = 'relative';
-    hintNode.style.padding = '1px';
-    hintNode.style.backgroundColor = 'yellow';
-    hintNode.style.border = '1px solid orange';
-    hintNode.style.color = 'black';
-    hintNode.innerText = hintText.toUpperCase();
-
-    return hintNode;
-  }
-
   function appendHint(node) {
-    const hintNode = createHintNode();
-    node.appendChild(hintNode);
+    node.dataset.turbokeyshint = generateUniqueHintText();
   }
 
   function isVisibleNode(node) {
@@ -106,8 +88,8 @@
     const hints = getHintElements();
 
     for (let i = 0; i < hints.length; i++) {
-      if (hints[i].innerText.toLowerCase() === hintText) {
-        return hints[i].parentNode;
+      if (hints[i].dataset.turbokeyshint.toLowerCase() === hintText) {
+        return hints[i];
       }
     }
   }

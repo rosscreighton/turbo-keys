@@ -8,6 +8,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*", "ftp://*/*"],
+      "css": ["turbokeys.css"],
       "js": ["turbokeys.js"]
     }
   ]
