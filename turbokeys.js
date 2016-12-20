@@ -8,6 +8,10 @@
   let usedHints = [];
   let hintPermuations = 0;
 
+  function getInputs() {
+    return document.querySelectorAll('input');
+  }
+
   function getHintElements() {
     return document.querySelectorAll('[data-turbokeyshint]');
   }
@@ -20,8 +24,14 @@
     })
   }
 
+  function enableInputs() {
+    const nodes = getInputs();
+    nodes.forEach(node => node.removeAttribute('readonly'));
+  }
+
   function reset() {
     removeHints();
+    enableInputs();
     usedHints = [];
     active = false;
   }
@@ -59,6 +69,9 @@
     node.dataset.turbokeyshint = generateUniqueHintText();
   }
 
+  function disableInputs() {
+    const nodes = getInputs();
+    nodes.forEach(node => node.setAttribute('readonly','readonly'));
   }
 
   function handleTriggerKey() {
@@ -66,6 +79,7 @@
       reset();
     } else {
       active = true;
+      disableInputs();
       const targetNodes = document.querySelectorAll(navigable_selectors);
 
       targetNodes.forEach(node => {
@@ -98,6 +112,6 @@
   document.addEventListener('keydown', e => {
     if (e.key === triggerKey) return handleTriggerKey();
     if (e.key === resetKey) return reset();
-    handleHintInput(e);
+    if (active) handleHintInput(e);
   })
 })();
