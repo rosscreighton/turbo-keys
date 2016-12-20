@@ -59,14 +59,6 @@
     node.dataset.turbokeyshint = generateUniqueHintText();
   }
 
-  function isVisibleNode(node) {
-    const bodyPosition = document.body.getBoundingClientRect();
-    const nodePosition = node.getBoundingClientRect();
-
-    return (
-      nodePosition.top > bodyPosition.top &&
-      nodePosition.bottom < bodyPosition.bottom
-    );
   }
 
   function handleTriggerKey() {
@@ -75,9 +67,8 @@
     } else {
       active = true;
       const targetNodes = document.querySelectorAll(navigable_selectors);
-      const visibleTargetNodes = Array.prototype.filter.call(targetNodes, node => isVisibleNode(node))
 
-      visibleTargetNodes.forEach(node => {
+      targetNodes.forEach(node => {
         appendHint(node)
       })
     }
