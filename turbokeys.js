@@ -99,11 +99,20 @@
     }
   }
 
+  function clickTarget() {
+    const node = findByHintText();
+
+    try {
+      node.click()
+    } catch (e) {
+      console.warn('could not trigger click on target: ', e)
+    }
+  }
+
   function handleHintInput(e) {
     hintInput.push(e.key)
     if (hintInput.length === 2) {
-      const node = findByHintText();
-      node.click()
+      clickTarget()
       hintInput = [];
       reset();
     }
