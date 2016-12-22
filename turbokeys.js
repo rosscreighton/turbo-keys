@@ -29,11 +29,29 @@
     nodes.forEach(node => node.removeAttribute('readonly'));
   }
 
+  function disableInputs() {
+    const nodes = getInputs();
+    nodes.forEach(node => {
+      node.setAttribute('readonly','readonly');
+      node.blur();
+    });
+  }
+
   function reset() {
     removeHints();
     enableInputs();
     usedHints = [];
     active = false;
+  }
+
+  function activate() {
+    active = true;
+    disableInputs();
+    const targetNodes = document.querySelectorAll(navigable_selectors);
+
+    targetNodes.forEach(node => {
+      appendHint(node)
+    })
   }
 
   function generateRandomHintText() {
@@ -69,22 +87,11 @@
     node.dataset.turbokeyshint = generateUniqueHintText();
   }
 
-  function disableInputs() {
-    const nodes = getInputs();
-    nodes.forEach(node => node.setAttribute('readonly','readonly'));
-  }
-
   function handleTriggerKey() {
     if (active) {
       reset();
     } else {
-      active = true;
-      disableInputs();
-      const targetNodes = document.querySelectorAll(navigable_selectors);
-
-      targetNodes.forEach(node => {
-        appendHint(node)
-      })
+      activate();
     }
   }
 
