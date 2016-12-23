@@ -10,6 +10,7 @@
   let active = false;
   let usedHints = [];
   let hintPermuations = 0;
+  let hasScrolledSinceReset = false;
 
   function getInputs() {
     return document.querySelectorAll('input');
@@ -54,6 +55,7 @@
     enableInputs();
     hintInput = [];
     active = false;
+    hasScrolledSinceReset = false;
   }
 
   function generateRandomHintText(length=hintLength) {
@@ -118,7 +120,7 @@
     active = true;
     disableInputs();
     setupHints();
-    reCalcHintPositions();
+    if (hasScrolledSinceReset) reCalcHintPositions();
     showHints();
   }
 
@@ -170,6 +172,7 @@
   }
 
   document.addEventListener('scroll', e => {
+    if (!hasScrolledSinceReset) hasScrolledSinceReset = true;
     if (active) reset();
   });
 
