@@ -1,5 +1,6 @@
 .turbokeys__hint {
   position: fixed;
+  z-index: 100000;
   display: inline;
   padding: 2px;
   background-color: yellow;
