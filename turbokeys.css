@@ -1,7 +1,6 @@
-[data-turbokeyshint]:before {
-  content: attr(data-turbokeyshint);
-  position: absolute;
-  position: relative;
+.turbokeys__hint {
+  position: fixed;
+  display: inline;
   padding: 1px;
   background-color: yellow;
   border: 1px solid orange;
@@ -9,6 +8,6 @@
   text-transform: uppercase;
 }
 
-[data-turbokeyshint="hidden"]:before {
+.turbokeys-hidden .turbokeys__hint {
   display: none;
 }

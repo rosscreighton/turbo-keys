@@ -12,16 +12,22 @@
     return document.querySelectorAll('input');
   }
 
-  function getHintElements() {
-    return document.querySelectorAll('[data-turbokeyshint]');
+  function getHintedElements() {
+    return document.querySelectorAll('[data-turbokeys-hintable-id]');
   }
 
-  function removeHints() {
-    const hints = getHintElements();
+  function getHintElements() {
+    return document.querySelectorAll('[data-turbokeys-hint-id]');
+  }
 
-    hints.forEach(node => {
-      node.dataset.turbokeyshint = 'hidden';
-    })
+  function hideHints() {
+    const bodyClass = document.body.className += ' turbokeys-hidden';
+    document.body.className = bodyClass;
+  }
+
+  function showHints() {
+    const bodyClass = document.body.className.slice().replace('turbokeys-hidden', '');
+    document.body.className = bodyClass;
   }
 
   function enableInputs() {
@@ -38,20 +44,9 @@
   }
 
   function reset() {
-    removeHints();
+    hideHints();
     enableInputs();
-    usedHints = [];
     active = false;
-  }
-
-  function activate() {
-    active = true;
-    disableInputs();
-    const targetNodes = document.querySelectorAll(navigable_selectors);
-
-    targetNodes.forEach(node => {
-      appendHint(node)
-    })
   }
 
   function generateRandomHintText() {
@@ -83,8 +78,43 @@
     }
   }
 
-  function appendHint(node) {
-    node.dataset.turbokeyshint = generateUniqueHintText();
+  function setHintPosition(hintNode, hintedNode) {
+    const { left, top } = hintedNode.getBoundingClientRect();
+    hintNode.style.top = top + 'px';
+    hintNode.style.left = left + 'px';
+  }
+
+  function createHintForNode(node) {
+    const hintText = generateUniqueHintText();
+    node.dataset.turbokeysHintableId = hintText;
+
+    const hintNode = document.createElement('span');
+    hintNode.dataset.turbokeysHintId = hintText;
+    hintNode.innerText = hintText;
+    hintNode.className = 'turbokeys__hint';
+    setHintPosition(hintNode, node);
+
+    document.body.appendChild(hintNode);
+  }
+
+  function reCalcHintPositions() {
+    const hintElemets = getHintElements();
+
+    hintElemets.forEach(hintNode => {
+      const hintedNode = document.querySelector(`[data-turbokeys-hintable-id="${hintNode.dataset.turbokeysHintId}"]`);
+
+      if (hintedNode) { // this is terrible, but not all hint elements have an acutal id bc there aren't enough permutations of the hint text
+        setHintPosition(hintNode, hintedNode);
+      }
+    })
+  }
+
+  function activate() {
+    active = true;
+    disableInputs();
+    setupHints();
+    reCalcHintPositions();
+    showHints();
   }
 
   function handleTriggerKey() {
@@ -97,10 +127,10 @@
 
   function findByHintText() {
     const hintText = hintInput.join('');
-    const hints = getHintElements();
+    const hints = getHintedElements();
 
     for (let i = 0; i < hints.length; i++) {
-      if (hints[i].dataset.turbokeyshint.toLowerCase() === hintText) {
+      if (hints[i].dataset.turbokeysHintableId.toLowerCase() === hintText) {
         return hints[i];
       }
     }
@@ -130,4 +160,15 @@
     if (e.key === resetKey) return reset();
     if (active) handleHintInput(e);
   })
+
+  function setupHints() {
+    const targetNodes = document.querySelectorAll(navigable_selectors);
+
+    targetNodes.forEach(node => {
+      if (!node.dataset.turbokeysHintableId) createHintForNode(node);
+    });
+  }
+
+  hideHints();
+  setupHints();
 })();
