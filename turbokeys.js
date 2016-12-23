@@ -10,7 +10,21 @@
   let active = false;
   let usedHints = [];
   let hintPermuations = 0;
-  let hasScrolledSinceReset = false;
+
+  function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      var later = function() {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+    };
+  }
 
   function getInputs() {
     return document.querySelectorAll('input');
@@ -55,7 +69,6 @@
     enableInputs();
     hintInput = [];
     active = false;
-    hasScrolledSinceReset = false;
   }
 
   function generateRandomHintText(length=hintLength) {
@@ -88,12 +101,6 @@
     }
   }
 
-  function positionHintNode(hintNode, hintedNode) {
-    const { left, top } = hintedNode.getBoundingClientRect();
-    hintNode.style.top = top + 'px';
-    hintNode.style.left = left + 'px';
-  }
-
   function createHintForNode(node) {
     const hintText = generateUniqueHintText();
     node.dataset.turbokeysHintableId = hintText;
@@ -102,12 +109,17 @@
     hintNode.dataset.turbokeysHintId = hintText;
     hintNode.innerText = hintText;
     hintNode.className = 'turbokeys__hint';
-    positionHintNode(hintNode, node);
 
     document.body.appendChild(hintNode);
   }
 
-  function reCalcHintPositions() {
+  function positionHintNode(hintNode, hintedNode) {
+    const { left, top } = hintedNode.getBoundingClientRect();
+    hintNode.style.top = top + 'px';
+    hintNode.style.left = left + 'px';
+  }
+
+  function positionHintNodes() {
     const hintElemets = getHintElements();
 
     hintElemets.forEach(hintNode => {
@@ -119,8 +131,6 @@
   function activate() {
     active = true;
     disableInputs();
-    setupHints();
-    if (hasScrolledSinceReset) reCalcHintPositions();
     showHints();
   }
 
@@ -171,17 +181,24 @@
     });
   }
 
+  function setUp() {
+    hideHints();
+    setupHints();
+    positionHintNodes();
+  }
+
+  const postScroll = debounce(setUp, 100)
+
   document.addEventListener('scroll', e => {
-    if (!hasScrolledSinceReset) hasScrolledSinceReset = true;
     if (active) reset();
+    if (!active) postScroll();
   });
 
   document.addEventListener('keydown', e => {
     if (e.key === triggerKey) return handleTriggerKey();
-    if (e.key === resetKey) return reset();
+    if (e.key === resetKey) reset();
     if (active) handleHintInput(e);
   })
 
-  hideHints();
-  setupHints();
+  setUp();
 })();
