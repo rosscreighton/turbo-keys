@@ -3,9 +3,9 @@
   const triggerKey = 'Alt';
   const resetKey = 'Escape';
   const twoCharMaxPermutations = 676;
-  let minHintLength = 2;
+  const minHintLength = 2;
+  const maxHintLength = 3;
   let hintLength = minHintLength;
-  let maxHintLength = 3;
   let hintInput = [];
   let active = false;
   let usedHints = [];
