@@ -136,20 +136,21 @@
     }
   }
 
-  function clickTarget() {
+  function navigateToTarget() {
     const node = findByHintText();
 
     try {
-      node.click()
+      node.focus();
+      node.click();
     } catch (e) {
-      console.warn('could not trigger click on target: ', e)
+      console.warn('could not navigate to target: ', e)
     }
   }
 
   function handleHintInput(e) {
     hintInput.push(e.key)
     if (hintInput.length === 2) {
-      clickTarget()
+      navigateToTarget()
       hintInput = [];
       reset();
     }
