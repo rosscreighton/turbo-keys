@@ -74,7 +74,8 @@
 
     if (usedHints.includes(hint)) {
       if (hintPermuations > twoCharMaxPermutations) {
-        if (hintLength = maxHintLength) return false;
+        if (hintLength === maxHintLength) return false;
+        hintLength++
         return generateUniqueHintText();
       } else {
         return generateUniqueHintText();
