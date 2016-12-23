@@ -1,11 +1,16 @@
 .turbokeys__hint {
   position: fixed;
   display: inline;
-  padding: 1px;
+  padding: 2px;
   background-color: yellow;
   border: 1px solid orange;
-  color: black;
+  border-radius: 4px;
+  font-family: 'monospace';
   text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: black;
 }
 
 .turbokeys-hidden .turbokeys__hint {
