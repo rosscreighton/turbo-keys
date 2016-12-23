@@ -159,12 +159,6 @@
     }
   }
 
-  document.addEventListener('keydown', e => {
-    if (e.key === triggerKey) return handleTriggerKey();
-    if (e.key === resetKey) return reset();
-    if (active) handleHintInput(e);
-  })
-
   function setupHints() {
     const targetNodes = document.querySelectorAll(navigable_selectors);
 
@@ -172,6 +166,16 @@
       if (!node.dataset.turbokeysHintableId) createHintForNode(node);
     });
   }
+
+  document.addEventListener('scroll', e => {
+    if (active) reset();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === triggerKey) return handleTriggerKey();
+    if (e.key === resetKey) return reset();
+    if (active) handleHintInput(e);
+  })
 
   hideHints();
   setupHints();
