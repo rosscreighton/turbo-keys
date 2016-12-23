@@ -2,7 +2,9 @@
   const navigable_selectors = ['a', 'button', 'input'];
   const triggerKey = 'Alt';
   const resetKey = 'Escape';
-  const maxPermutations = 676;
+  const twoCharMaxPermutations = 676;
+  let hintLength = 2;
+  let maxHintLength = 3;
   let hintInput = [];
   let active = false;
   let usedHints = [];
@@ -49,14 +51,15 @@
   function reset() {
     hideHints();
     enableInputs();
+    hintInput = [];
     active = false;
   }
 
-  function generateRandomHintText() {
+  function generateRandomHintText(length=hintLength) {
     const possibleChars = 'abcdefghijklmnopqrstuvwxyz';
     const hintChars = [];
 
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < length; i++) {
       const char = possibleChars.charAt(Math.floor(Math.random() * possibleChars.length))
       hintChars.push(char);
     }
@@ -70,8 +73,9 @@
     const hint = generateRandomHintText();
 
     if (usedHints.includes(hint)) {
-      if (hintPermuations > maxPermutations) {
-        return false;
+      if (hintPermuations > twoCharMaxPermutations) {
+        if (hintLength = maxHintLength) return false;
+        return generateUniqueHintText();
       } else {
         return generateUniqueHintText();
       }
@@ -105,10 +109,7 @@
 
     hintElemets.forEach(hintNode => {
       const hintedNode = document.querySelector(`[data-turbokeys-hintable-id="${hintNode.dataset.turbokeysHintId}"]`);
-
-      if (hintedNode) { // this is terrible, but not all hint elements have an acutal id bc there aren't enough permutations of the hint text
-        positionHintNode(hintNode, hintedNode);
-      }
+      positionHintNode(hintNode, hintedNode);
     })
   }
 
@@ -130,11 +131,11 @@
 
   function findByHintText() {
     const hintText = hintInput.join('');
-    const hints = getHintedElements();
+    const hinted = getHintedElements();
 
-    for (let i = 0; i < hints.length; i++) {
-      if (hints[i].dataset.turbokeysHintableId.toLowerCase() === hintText) {
-        return hints[i];
+    for (let i = 0; i < hinted.length; i++) {
+      if (hinted[i].dataset.turbokeysHintableId.toLowerCase() === hintText) {
+        return hinted[i];
       }
     }
   }
@@ -144,7 +145,6 @@
     enableInputs(true);
 
     try {
-      node.focus();
       node.click();
     } catch (e) {
       console.warn('could not navigate to target: ', e)
@@ -153,9 +153,8 @@
 
   function handleHintInput(e) {
     hintInput.push(e.key)
-    if (hintInput.length === 2) {
+    if (hintInput.length === hintLength) {
       navigateToTarget()
-      hintInput = [];
       reset();
     }
   }
