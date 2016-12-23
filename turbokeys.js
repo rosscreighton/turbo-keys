@@ -26,20 +26,23 @@
   }
 
   function showHints() {
-    const bodyClass = document.body.className.slice().replace('turbokeys-hidden', '');
+    const bodyClass = document.body.className.replace(' turbokeys-hidden', '');
     document.body.className = bodyClass;
   }
 
-  function enableInputs() {
+  function enableInputs(readOnly=false) {
     const nodes = getInputs();
-    nodes.forEach(node => node.removeAttribute('readonly'));
+    nodes.forEach(node => {
+      if (!readOnly) node.removeAttribute('readonly');
+      node.removeAttribute('disabled');
+    });
   }
 
   function disableInputs() {
     const nodes = getInputs();
     nodes.forEach(node => {
-      node.setAttribute('readonly','readonly');
-      node.blur();
+      node.setAttribute('disabled', 'disabled');
+      node.setAttribute('readonly', 'readonly');
     });
   }
 
@@ -78,7 +81,7 @@
     }
   }
 
-  function setHintPosition(hintNode, hintedNode) {
+  function positionHintNode(hintNode, hintedNode) {
     const { left, top } = hintedNode.getBoundingClientRect();
     hintNode.style.top = top + 'px';
     hintNode.style.left = left + 'px';
@@ -92,7 +95,7 @@
     hintNode.dataset.turbokeysHintId = hintText;
     hintNode.innerText = hintText;
     hintNode.className = 'turbokeys__hint';
-    setHintPosition(hintNode, node);
+    positionHintNode(hintNode, node);
 
     document.body.appendChild(hintNode);
   }
@@ -104,7 +107,7 @@
       const hintedNode = document.querySelector(`[data-turbokeys-hintable-id="${hintNode.dataset.turbokeysHintId}"]`);
 
       if (hintedNode) { // this is terrible, but not all hint elements have an acutal id bc there aren't enough permutations of the hint text
-        setHintPosition(hintNode, hintedNode);
+        positionHintNode(hintNode, hintedNode);
       }
     })
   }
@@ -138,6 +141,7 @@
 
   function navigateToTarget() {
     const node = findByHintText();
+    enableInputs(true);
 
     try {
       node.focus();
