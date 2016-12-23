@@ -109,7 +109,7 @@
 
     hintElemets.forEach(hintNode => {
       const hintedNode = document.querySelector(`[data-turbokeys-hintable-id="${hintNode.dataset.turbokeysHintId}"]`);
-      positionHintNode(hintNode, hintedNode);
+      if (hintedNode) positionHintNode(hintNode, hintedNode);
     })
   }
 
