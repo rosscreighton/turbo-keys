@@ -3,7 +3,8 @@
   const triggerKey = 'Alt';
   const resetKey = 'Escape';
   const twoCharMaxPermutations = 676;
-  let hintLength = 2;
+  let minHintLength = 2;
+  let hintLength = minHintLength;
   let maxHintLength = 3;
   let hintInput = [];
   let active = false;
@@ -72,10 +73,9 @@
   function generateUniqueHintText() {
     const hint = generateRandomHintText();
 
-    if (usedHints.includes(hint)) {
+    if (usedHints.includes(hint) || usedHints.includes(hint.substr(0, 2))) {
       if (hintPermuations > twoCharMaxPermutations) {
-        if (hintLength === maxHintLength) return false;
-        hintLength++
+        hintLength = maxHintLength;
         return generateUniqueHintText();
       } else {
         return generateUniqueHintText();
@@ -143,20 +143,21 @@
 
   function navigateToTarget() {
     const node = findByHintText();
-    enableInputs(true);
 
-    try {
+    if (node) {
+      enableInputs(true);
       node.click();
-    } catch (e) {
-      console.warn('could not navigate to target: ', e)
+      reset();
     }
   }
 
   function handleHintInput(e) {
     hintInput.push(e.key)
-    if (hintInput.length === hintLength) {
-      navigateToTarget()
+
+    if (hintInput > maxHintLength) {
       reset();
+    } else if (hintInput.length >= minHintLength) {
+      navigateToTarget();
     }
   }
 
