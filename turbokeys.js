@@ -1,4 +1,5 @@
 (function() {
+  const hintContainerId = 'turbokeys-hint-container';
   const navigable_selectors = ['a', 'button', 'input'];
   const triggerKey = 'Alt';
   const resetKey = 'Escape';
@@ -10,6 +11,31 @@
   let active = false;
   let usedHints = [];
   let hintPermuations = 0;
+
+  const isAJAXPending = (function() {
+    const oldSend = XMLHttpRequest.prototype.send;
+    let currentRequests = [];
+
+    XMLHttpRequest.prototype.send = function() {
+      currentRequests.push(this);
+      oldSend.apply(this, arguments);
+
+      this.addEventListener('readystatechange', function() {
+        var idx;
+
+        if (this.readyState === XMLHttpRequest.DONE) {
+            idx = currentRequests.indexOf(this);
+            if (idx > -1) {
+                currentRequests.splice(idx, 1);
+            }
+        }
+      }, false);
+    };
+
+    return function() {
+      return currentRequests.length > 0;
+    }
+  }());
 
   function debounce(func, wait, immediate) {
     var timeout;
@@ -24,6 +50,10 @@
       timeout = setTimeout(later, wait);
       if (callNow) func.apply(context, args);
     };
+  }
+
+  function getHintContainer() {
+    return document.getElementById(hintContainerId);
   }
 
   function getInputs() {
@@ -44,7 +74,7 @@
   }
 
   function showHints() {
-    const bodyClass = document.body.className.replace(' turbokeys-hidden', '');
+    const bodyClass = document.body.className.replace(/\sturbokeys-hidden/g, '');
     document.body.className = bodyClass;
   }
 
@@ -62,13 +92,6 @@
       node.setAttribute('disabled', 'disabled');
       node.setAttribute('readonly', 'readonly');
     });
-  }
-
-  function reset() {
-    hideHints();
-    enableInputs();
-    hintInput = [];
-    active = false;
   }
 
   function generateRandomHintText(length=hintLength) {
@@ -110,7 +133,8 @@
     hintNode.innerText = hintText;
     hintNode.className = 'turbokeys__hint';
 
-    document.body.appendChild(hintNode);
+    const hintContainer = getHintContainer();
+    hintContainer.appendChild(hintNode);
   }
 
   function positionHintNode(hintNode, hintedNode) {
@@ -128,6 +152,26 @@
     })
   }
 
+  function reset() {
+    const hinted = getHintedElements();
+    const hintContainer = getHintContainer();
+
+    deactivate();
+    hintLength = minHintLength;
+    usedHints = [];
+    hintPermuations = 0;
+
+    hinted.forEach(node => node.removeAttribute('data-turbokeys-hintable-id'));
+    hintContainer.innerHTML = '';
+  }
+
+  function deactivate() {
+    hideHints();
+    enableInputs();
+    hintInput = [];
+    active = false;
+  }
+
   function activate() {
     active = true;
     disableInputs();
@@ -136,7 +180,7 @@
 
   function handleTriggerKey() {
     if (active) {
-      reset();
+      deactivate();
     } else {
       activate();
     }
@@ -153,21 +197,34 @@
     }
   }
 
+  function postNavigate() {
+    setTimeout(() => {
+      if (isAJAXPending()) {
+        postNavigate();
+      } else {
+        reset();
+        setUp();
+      }
+    }, 250)
+  }
+
   function navigateToTarget() {
     const node = findByHintText();
 
     if (node) {
       enableInputs(true);
       node.click();
-      reset();
+      postNavigate();
     }
+
+    deactivate();
   }
 
   function handleHintInput(e) {
     hintInput.push(e.key)
 
     if (hintInput > maxHintLength) {
-      reset();
+      deactivate();
     } else if (hintInput.length >= minHintLength) {
       navigateToTarget();
     }
@@ -187,18 +244,25 @@
     positionHintNodes();
   }
 
+  function createHintContainer() {
+    const hintContainer = document.createElement('div');
+    hintContainer.id = hintContainerId;
+    document.body.appendChild(hintContainer);
+  }
+
   const postScroll = debounce(setUp, 100)
 
   document.addEventListener('scroll', e => {
-    if (active) reset();
+    if (active) deactivate();
     if (!active) postScroll();
   });
 
   document.addEventListener('keydown', e => {
     if (e.key === triggerKey) return handleTriggerKey();
-    if (e.key === resetKey) reset();
+    if (e.key === resetKey) deactivate();
     if (active) handleHintInput(e);
   })
 
+  createHintContainer();
   setUp();
 })();
