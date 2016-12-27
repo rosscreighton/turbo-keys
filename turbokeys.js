@@ -205,7 +205,7 @@
         reset();
         setUp();
       }
-    }, 250)
+    }, 500)
   }
 
   function navigateToTarget() {
