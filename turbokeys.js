@@ -213,6 +213,7 @@
 
     if (node) {
       enableInputs(true);
+      node.focus();
       node.click();
       postNavigate();
     }
